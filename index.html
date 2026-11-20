@@ -1,0 +1,84 @@
+<!DOCTYPE html>
+<html lang="en"><head><meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+<title>VAK.AI</title>
+<style>
+:root{--bg:#f6f4ef;--card:#fff;--ink:#1d1b2e;--mut:#6b6880;--acc:#6d4aff;--acc2:#ff7a59;--line:#e3e0ea;--me:#ece7ff;box-sizing:border-box;padding-top:env(safe-area-inset-top,0px);padding-bottom:env(safe-area-inset-bottom,0px)}
+@media (prefers-color-scheme:dark){:root:not([data-theme="light"]){--bg:#14121f;--card:#1e1b2e;--ink:#eeebf7;--mut:#9a96b3;--line:#322e48;--me:#2c2552;color-scheme:dark}}
+:root[data-theme="dark"]{--bg:#14121f;--card:#1e1b2e;--ink:#eeebf7;--mut:#9a96b3;--line:#322e48;--me:#2c2552;color-scheme:dark}
+*{box-sizing:border-box}html{scroll-padding-top:env(safe-area-inset-top,0px)}
+body{margin:0;background:var(--bg);color:var(--ink);font:16px/1.5 system-ui,-apple-system,Segoe UI,Roboto,sans-serif}
+header{padding:16px 20px;display:flex;align-items:baseline;gap:12px;flex-wrap:wrap}
+h1{margin:0;font-size:24px;background:linear-gradient(90deg,var(--acc),var(--acc2));-webkit-background-clip:text;background-clip:text;color:transparent}
+header span{color:var(--mut);font-size:14px}
+main{display:grid;grid-template-columns:1fr 300px;gap:16px;padding:0 20px 20px;max-width:1100px;margin:auto}
+@media(max-width:800px){main{grid-template-columns:1fr}}
+.card{background:var(--card);border:1px solid var(--line);border-radius:14px;padding:14px}
+.tabs{display:flex;gap:6px;overflow-x:auto;margin-bottom:10px}
+.tab{border:1px solid var(--line);background:none;color:var(--ink);padding:5px 12px;border-radius:99px;cursor:pointer;white-space:nowrap;font:inherit;font-size:13px}
+.tab.on{background:var(--acc);color:#fff;border-color:var(--acc)}
+#log{height:52vh;min-height:300px;overflow-y:auto;display:flex;flex-direction:column;gap:10px;padding:4px}
+.m{max-width:90%;padding:9px 12px;border-radius:12px;border:1px solid var(--line)}
+.m.u{align-self:flex-end;background:var(--me)}
+.meta{display:flex;align-items:center;gap:8px;margin-top:8px;font-size:12px;color:var(--mut);flex-wrap:wrap}
+.bar{width:70px;height:6px;border-radius:9px;background:var(--line);overflow:hidden}.bar i{display:block;height:100%}
+.chk{margin-top:6px;font-size:13px;color:var(--mut);border-left:3px solid var(--acc2);padding-left:8px}
+.fork{border:none;background:none;color:var(--acc);cursor:pointer;font-size:12px;padding:0}
+form{display:flex;gap:8px;margin-top:10px}
+input[type=text],select{padding:10px 12px;border-radius:10px;border:1px solid var(--line);background:var(--bg);color:var(--ink);font:inherit}
+input[type=text]{flex:1}
+button.go{background:var(--acc);color:#fff;border:none;border-radius:10px;padding:0 16px;font:inherit;cursor:pointer}
+button.go:disabled{opacity:.5}
+h2{font-size:14px;margin:0 0 8px;color:var(--mut);text-transform:uppercase;letter-spacing:.06em}
+.side{display:flex;flex-direction:column;gap:16px}
+#garden{display:flex;flex-wrap:wrap;gap:8px;min-height:40px}
+.pl{border:1px solid var(--line);border-radius:10px;padding:6px 9px;font-size:13px}.pl b{font-size:20px;display:block}
+input[type=range]{width:100%}.row{display:flex;justify-content:space-between;font-size:12px;color:var(--mut)}
+.hint{font-size:12px;color:var(--mut);margin:6px 0 0}
+#st{font-size:12px;margin-bottom:8px;color:var(--mut)}
+</style></head><body>
+<header><h1>VAK.AI</h1><span>A study and research helper that shows how sure it is, branches time, and grows a garden of what you learn.</span></header>
+<main>
+<section class="card">
+<div id="st">Starting…</div><input type="text" id="code" placeholder="Access code (if the owner set one)" style="width:100%;margin-bottom:8px">
+<div class="tabs" id="tabs"></div>
+<div id="log"></div><div id="ask" class="card" style="display:none;margin-top:10px"><b>Do you want to connect to the AI BACK END SYSTEM?</b><div class="meta"><button class="go" id="yes" style="padding:8px 16px">Yes, connect</button><button class="tab" id="no">Not now</button></div></div>
+<form id="f"><select id="mode"><option>Explain</option><option>Research</option><option>Quiz me</option><option>Explain like I’m 10</option></select>
+<input type="text" id="t" placeholder="Ask anything, e.g. How does photosynthesis work?" autocomplete="off"><button class="go" id="b">Send</button></form>
+<p class="hint">Pick a mode, ask a question, then click ⑂ Fork under any answer to explore a different direction in a new tab (for example, switch to “Explain like I’m 10” and compare).</p>
+</section>
+<aside class="side">
+<div class="card"><h2>Study garden</h2><div id="garden"></div><p class="hint">Every topic you explore becomes a plant. Come back to it and it grows from 🌱 to 🌿 to 🌳.</p></div>
+<div class="card"><h2>Tone dial</h2><input type="range" id="tone" min="0" max="2" value="1"><div class="row"><span>Playful</span><span>Neutral</span><span>Formal</span></div></div>
+<div class="card"><h2>How to read answers</h2><p class="hint" style="margin:0">The bar shows how sure the AI is. Red or yellow means double-check it. “Verify” lists specific claims worth checking in a trusted source. The AI can be wrong, so use it as a starting point.</p></div>
+</aside>
+</main>
+<script>
+var S=null,gd={},tl=[{name:"Main",msgs:[]}],cur=0,busy=false,$=function(i){return document.getElementById(i)};
+function esc(s){return String(s).replace(/[&<>"]/g,function(c){return{"&":"&amp;","<":"&lt;",">":"&gt;",'"':"&quot;"}[c]})}
+function status(t){$("st").textContent=t}
+S=function(p){return fetch("/api/chat",{method:"POST",headers:{"Content-Type":"application/json"},body:JSON.stringify({prompt:p,code:$("code").value})}).then(function(r){return r.json().then(function(d){if(!r.ok)throw{code:d.error};return d})})};status("Ready. Ask away.");
+function grow(){var k=Object.keys(gd);$("garden").innerHTML=k.map(function(n){var c=gd[n];return'<div class="pl"><b>'+(c>3?"🌳":c>1?"🌿":"🌱")+"</b>"+esc(n)+"</div>"}).join("")||'<span class="hint">Empty. Ask a question to plant your first topic.</span>'}
+function draw(){
+$("tabs").innerHTML=tl.map(function(x,i){return'<button class="tab'+(i==cur?" on":"")+'" data-i="'+i+'">'+esc(x.name)+"</button>"}).join("");
+var h="";tl[cur].msgs.forEach(function(m,i){
+if(m.u)h+='<div class="m u">'+esc(m.t)+"</div>";
+else{var col=m.c>70?"#2fb67c":m.c>40?"#e8a838":"#e5484d";
+h+='<div class="m">'+esc(m.t).replace(/\n/g,"<br>");
+if(m.c!=null)h+='<div class="meta"><span>Certainty '+m.c+'%</span><div class="bar"><i style="width:'+m.c+"%;background:"+col+'"></i></div><span>'+esc(m.w||"")+'</span><button class="fork" data-f="'+i+'">⑂ Fork</button></div>';
+if(m.k&&m.k.length)h+='<div class="chk">Verify: '+m.k.map(esc).join(" · ")+"</div>";
+h+="</div>"}});
+if(busy)h+='<div class="m">Thinking…</div>';
+$("log").innerHTML=h;$("log").scrollTop=1e6}
+$("tabs").onclick=function(e){var i=e.target.dataset.i;if(i!=null){cur=+i;draw()}};
+$("log").onclick=function(e){var f=e.target.dataset.f;if(f!=null){tl.push({name:"Fork "+tl.length,msgs:tl[cur].msgs.slice(0,+f+1)});cur=tl.length-1;draw()}};
+function parse(t){try{var a=t.indexOf("{"),b=t.lastIndexOf("}");var o=JSON.parse(t.slice(a,b+1));return{t:String(o.answer||t),c:Math.max(0,Math.min(100,Math.round(+o.certainty)||40)),w:o.why||"",k:Array.isArray(o.check)?o.check.slice(0,3):[],p:Array.isArray(o.topics)?o.topics.slice(0,3):[]}}catch(e){return{t:t,c:40,w:"Reply wasn’t in the expected format.",k:[],p:[]}}}
+$("f").onsubmit=function(e){e.preventDefault();var q=$("t").value.trim();if(!q||busy)return;
+if(!S){status("The AI isn’t available here. Open this link inside claude.ai.");return}
+if(!ok){$("ask").style.display="block";return}$("ask").style.display="none";$("t").value="";var msgs=tl[cur].msgs;msgs.push({u:1,t:q});busy=true;$("b").disabled=true;draw();
+var tn=["playful and friendly","neutral","formal and precise"][+$("tone").value];
+var hist=msgs.slice(-11,-1).map(function(m){return(m.u?"Student: ":"Assistant: ")+m.t}).join("\n");
+var p="You are VAK.AI, an honest study and research assistant. Reply with ONLY a JSON object, no markdown fences: {\"answer\": string (clear plain text, short paragraphs), \"certainty\": integer 0-100 for how sure you are the answer is correct, \"why\": short reason for that certainty, \"check\": array of up to 3 specific claims the student should verify in a trusted source (empty array if none), \"topics\": array of 1-3 short topic names}. Mode: "+$("mode").value+". (Quiz me = ask one question at a time and judge the student’s answers. Research = give structured findings and note disagreements or gaps. Explain like I’m 10 = very simple words.) Tone: "+tn+". If unsure, say so and give low certainty. Never invent sources, quotes or citations.\n\nConversation so far:\n"+hist+"\n\nStudent: "+q;
+S(p,{cache:false}).then(function(r){var o=parse(r.text);msgs.push({t:o.t,c:o.c,w:o.w,k:o.k});o.p.forEach(function(n){gd[n]=(gd[n]||0)+1});grow()}).catch(function(err){var c=err&&err.code;msgs.push({t:c=="bad_code"?"That access code is missing or wrong.":c=="not_granted"?"Permission to use the AI was declined. Reload the page and allow it to continue.":c=="rate_limited"?"Too many requests. Wait a moment and try again.":"Something went wrong. Please try again."})}).then(function(){busy=false;$("b").disabled=false;draw()})};
+var ok=false;$("yes").onclick=function(){ok=true;$("ask").style.display="none";$("f").requestSubmit()};$("no").onclick=function(){$("ask").style.display="none"};grow();tl[0].msgs.push({t:"Hi, I’m VAK.AI. Ask me about any subject, or switch to Quiz me to test yourself.",c:98,w:"Intro."});draw();
+</script></body></html>
